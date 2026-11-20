@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vice Panels — GTA-Style Cover Lab</title>
+<meta name="description" content="Turn any photo into multi-panel GTA-style cover art with a Vice City neon-sunset grade. Fully offline: your photos never leave this machine.">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<main class="shell">
+  <section class="controls" aria-label="Cover controls">
+    <header class="brand">
+      <h1>Vice <span>Panels</span></h1>
+      <p class="tagline">Your photo in, a GTA-style poster out. Multi-panel cover art with a Vice City neon-sunset grade — <strong>100% offline, photos never leave this machine.</strong></p>
+    </header>
+
+    <div class="group">
+      <h2>1 · Layout</h2>
+      <div id="layout-picker" class="chips"></div>
+    </div>
+
+    <div class="group">
+      <h2>2 · Photos</h2>
+      <div id="panel-strip" class="panel-strip"></div>
+      <label class="file-button">Add photos to all panels at once
+        <input id="bulk-photo" type="file" accept="image/*" multiple hidden>
+      </label>
+      <div class="row-buttons">
+        <button id="fill-one" type="button" class="ghost">One photo fills all panels</button>
+        <button id="demo-button" type="button" class="ghost">Reload demo photos</button>
+      </div>
+      <fieldset class="panel-box">
+        <legend id="panel-heading">Panel 1</legend>
+        <label class="file-button small">Choose this panel's photo
+          <input id="panel-photo" type="file" accept="image/*" hidden>
+        </label>
+        <label>Zoom <input id="panel-zoom" type="range" min="1" max="3.2" step="0.01" value="1"></label>
+        <label>Panel grade
+          <select id="panel-grade"></select>
+        </label>
+        <p class="hint">Tip: drag the photo right on the cover to reframe it, scroll to zoom.</p>
+      </fieldset>
+    </div>
+
+    <div class="group">
+      <h2>3 · Grade &amp; finish</h2>
+      <label>Cover grade <select id="grade-select"></select></label>
+      <label>Grade strength <input id="grade-strength" type="range" min="0" max="1" step="0.01" value="0.9"></label>
+      <div class="row-checks">
+        <label><input id="grain-input" type="checkbox" checked> Film grain</label>
+        <label><input id="vignette-input" type="checkbox" checked> Vignette</label>
+      </div>
+    </div>
+
+    <div class="group">
+      <h2>4 · Lettering</h2>
+      <label>Title <input id="title-input" type="text" maxlength="26" value="VICE PANELS"></label>
+      <label>Script subtitle <input id="subtitle-input" type="text" maxlength="40" value="welcome to neon coast"></label>
+      <label>Caption bar <input id="caption-input" type="text" maxlength="48" value="ONE PHOTO IN — A POSTER OUT"></label>
+      <label>Corner badge <input id="badge-input" type="text" maxlength="24" value="FREE OFFLINE"></label>
+      <label>Wanted stars <input id="stars-input" type="range" min="0" max="5" step="1" value="4"></label>
+    </div>
+
+    <div class="group">
+      <h2>5 · Export</h2>
+      <div id="size-picker" class="chips"></div>
+      <button id="export-button" type="button" class="export">⬇ Export cover as PNG</button>
+      <p id="status" role="status"></p>
+      <p class="privacy">Private by design: this app runs entirely from its own files. No uploads, no accounts, no tracking — close the tab and the photos are gone.</p>
+    </div>
+  </section>
+
+  <section class="stage" aria-label="Cover preview">
+    <canvas id="preview" width="864" height="1080"></canvas>
+    <p class="stage-hint">Live preview — click a panel to select it, drag to reframe, drop photos anywhere on the cover.</p>
+  </section>
+</main>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
