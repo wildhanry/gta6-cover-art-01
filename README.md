@@ -39,6 +39,11 @@ node serve.ts
 Any static file server pointed at `app/` works just as well — there is no build
 step and nothing to install.
 
+## Run it locally
+
+From the kit folder, run `node serve.ts --port 8123` and open http://localhost:8123 in your browser.
+Load a photo into a panel, adjust the framing and title, then click Export PNG to save your cover.
+
 ## Hand it in (what main.ts does)
 
 ```sh
