@@ -22,14 +22,14 @@ function emptySlot() {
 
 /** The whole cover as the editor currently holds it. */
 const state = {
-  layout: 'hero-grid',
+  layout: 'cover-star',
   slots: Array.from({ length: MAX_PANELS }, emptySlot),
   gradeId: 'vice-sunset',
   gradeStrength: 0.9,
   title: 'VICE PANELS',
   subtitle: 'welcome to neon coast',
   caption: 'ONE PHOTO IN — A POSTER OUT',
-  badge: 'FREE OFFLINE',
+  badge: '',
   stars: 4,
   grain: true,
   vignette: true,
@@ -386,6 +386,14 @@ async function startEditor() {
     state.selectedIndex = query.get('shot') === 'cover' ? -1 : 0;
     markActiveChips();
     await loadDemoCast(cast);
+    // A scene may reframe individual panels (the same zoom and pan a reader gets
+    // from the sliders and dragging), so a face can be settled below the title.
+    wording.zooms.forEach((zoom, index) => {
+      if (state.slots[index]) state.slots[index].zoom = Math.max(1, Math.min(3.2, zoom));
+    });
+    wording.pans.forEach((pan, index) => {
+      if (state.slots[index]) state.slots[index].panY = Math.max(-0.6, Math.min(0.6, pan));
+    });
     syncPanelControls();
   });
   if (!isShot) await loadDemoCast();

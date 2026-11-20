@@ -8,7 +8,15 @@
 const SHOT_CASTS = {
   sunset: ['hero', 'rooftop', 'neon', 'pier', 'neon', 'hero', 'pier', 'rooftop', 'neon'],
   night: ['neon', 'hero', 'pier', 'rooftop', 'hero', 'neon', 'rooftop', 'pier', 'hero'],
+  star: ['hero', 'neon', 'rooftop', 'pier', 'neon', 'hero', 'pier', 'rooftop', 'neon'],
 };
+
+/** Parses a comma list of per-panel numbers from the query, or an empty list. */
+function numberList(query, name) {
+  const raw = query.get(name);
+  if (!raw) return [];
+  return raw.split(',').map((part) => Number(part)).filter((value) => Number.isFinite(value));
+}
 
 /** Reads the scene's wording from the query, with defaults that show off the type. */
 export function shotWording(query) {
@@ -16,12 +24,14 @@ export function shotWording(query) {
     title: query.get('title') ?? 'VICE PANELS',
     subtitle: query.get('subtitle') ?? 'welcome to neon coast',
     caption: query.get('caption') ?? 'ONE PHOTO IN — A POSTER OUT',
-    badge: query.get('badge') ?? 'FREE OFFLINE',
+    badge: query.get('badge') ?? '',
     layout: query.get('layout') ?? 'hero-grid',
     grade: query.get('grade') ?? 'vice-sunset',
     size: query.get('size') ?? 'wide',
     cast: query.get('cast') ?? 'sunset',
     stars: Number(query.get('stars') ?? 4),
+    zooms: numberList(query, 'zoom'),
+    pans: numberList(query, 'pan'),
   };
 }
 

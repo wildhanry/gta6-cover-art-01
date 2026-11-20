@@ -1,8 +1,10 @@
 // The cover renderer for Vice Panels. drawCoverArt paints a complete cover onto any
 // 2D context at any pixel size: the deep Vice City sky behind everything, each panel's
-// photograph cover-fitted and colour-graded inside its leaning polygon, the white
-// poster dividers, then the lettering block (a huge condensed title with a sunset
-// gradient fill, a neon script subtitle, a caption bar, wanted stars and a badge).
+// photograph cover-fitted (its crop leaning toward the upper third, where faces live)
+// and colour-graded inside its leaning polygon, a soft shade pooled at each panel's
+// foot, the chunky white poster dividers with their dark keyline, then the lettering
+// block over a dusk scrim (a huge condensed title with a sunset gradient fill and a
+// drop shadow, a neon script subtitle, a caption bar, wanted stars and a badge).
 // The editor preview and the exported PNG are the same drawing at different sizes,
 // so what the reader sees is exactly what they download.
 
@@ -103,7 +105,10 @@ function paintPanelPhoto(ctx, panel, slot, grade, strength, width, height) {
   const drawWidth = photo.naturalWidth * scale;
   const drawHeight = photo.naturalHeight * scale;
   const drawX = bx + (bw - drawWidth) / 2 + (slot.panX || 0) * bw;
-  const drawY = by + (bh - drawHeight) / 2 + (slot.panY || 0) * bh;
+  // The vertical crop leans toward the upper third rather than the dead centre:
+  // faces and skies live there, so a wide panel cut from a taller photo keeps the
+  // subject's head instead of slicing it at the panel's top edge.
+  const drawY = by + (bh - drawHeight) * 0.34 + (slot.panY || 0) * bh;
   const tile = makeCanvas(bw, bh);
   const tileCtx = tile.getContext('2d');
   tileCtx.drawImage(photo, drawX - bx, drawY - by, drawWidth, drawHeight);
@@ -117,7 +122,26 @@ function paintPanelPhoto(ctx, panel, slot, grade, strength, width, height) {
   ctx.clip();
   ctx.drawImage(tile, bx, by);
   paintGradeWashes(ctx, grade, bx, by, bw, bh);
+  paintPanelShade(ctx, bx, by, bw, bh);
   ctx.restore();
+}
+
+/**
+ * A soft shade pooled along a panel's foot and a breath of light at its head, so
+ * each panel has its own depth and the white dividers sit between scenes at
+ * slightly different distances, like cut paper on a printed poster.
+ */
+function paintPanelShade(ctx, bx, by, bw, bh) {
+  const foot = ctx.createLinearGradient(0, by + bh * 0.62, 0, by + bh);
+  foot.addColorStop(0, 'rgba(22, 4, 36, 0)');
+  foot.addColorStop(1, 'rgba(22, 4, 36, 0.26)');
+  ctx.fillStyle = foot;
+  ctx.fillRect(bx, by, bw, bh);
+  const head = ctx.createLinearGradient(0, by, 0, by + bh * 0.30);
+  head.addColorStop(0, 'rgba(255, 240, 200, 0.10)');
+  head.addColorStop(1, 'rgba(255, 240, 200, 0)');
+  ctx.fillStyle = head;
+  ctx.fillRect(bx, by, bw, bh);
 }
 
 /** The chunky white dividers and outer frame that make panels read as one poster. */
@@ -126,12 +150,12 @@ function paintPanelFrames(ctx, panels, width, height, selectedIndex) {
   ctx.lineJoin = 'round';
   for (const panel of panels) {
     tracePolygon(ctx, panel.points, width, height);
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = unit * 0.011;
+    ctx.strokeStyle = 'rgba(20, 8, 40, 0.65)';
+    ctx.lineWidth = unit * 0.020;
     ctx.stroke();
     tracePolygon(ctx, panel.points, width, height);
-    ctx.strokeStyle = 'rgba(20, 8, 40, 0.55)';
-    ctx.lineWidth = unit * 0.0035;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = unit * 0.0135;
     ctx.stroke();
   }
   if (selectedIndex >= 0 && panels[selectedIndex]) {
@@ -143,7 +167,7 @@ function paintPanelFrames(ctx, panels, width, height, selectedIndex) {
     ctx.setLineDash([]);
   }
   ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = unit * 0.016;
+  ctx.lineWidth = unit * 0.02;
   ctx.strokeRect(ctx.lineWidth / 2, ctx.lineWidth / 2, width - ctx.lineWidth, height - ctx.lineWidth);
 }
 
@@ -192,9 +216,9 @@ function paintWantedStars(ctx, centreX, y, count, unit) {
 function paintCornerBadge(ctx, text, width, unit) {
   if (!text.trim()) return;
   ctx.save();
-  ctx.translate(width - unit * 0.115, unit * 0.115);
+  ctx.translate(width - unit * 0.10, unit * 0.10);
   ctx.rotate(Math.PI / 7);
-  const radius = unit * 0.088;
+  const radius = unit * 0.074;
   ctx.beginPath();
   for (let point = 0; point < 12; point += 1) {
     const r = point % 2 === 0 ? radius : radius * 0.82;
@@ -244,11 +268,27 @@ function paintLettering(ctx, state, width, height) {
   const subtitle = (state.subtitle || '').trim();
   const caption = (state.caption || '').trim().toUpperCase();
   ctx.textAlign = 'center';
+  if (title || subtitle) {
+    // A dusk scrim behind the lettering: the top of the cover darkens toward deep
+    // violet, so the title sits in its own sky band and reads at thumbnail size
+    // instead of fighting the brightest part of whatever photo fills the top panel.
+    const scrim = ctx.createLinearGradient(0, 0, 0, height * 0.36);
+    scrim.addColorStop(0, 'rgba(18, 3, 32, 0.62)');
+    scrim.addColorStop(0.55, 'rgba(18, 3, 32, 0.34)');
+    scrim.addColorStop(1, 'rgba(18, 3, 32, 0)');
+    ctx.fillStyle = scrim;
+    ctx.fillRect(0, 0, width, height * 0.36);
+  }
+  // The title's size and baseline are settled first, and the script subtitle is
+  // stacked a breath above the title's cap height: on a wide cover the title is
+  // tall relative to the height, so a fixed subtitle line would sink behind it.
+  const titleSize = title ? fitFontSize(ctx, title, width * 0.93, unit * 0.178, '900', TITLE_FONT_STACK) : 0;
+  const titleY = subtitle ? Math.max(height * 0.235, unit * 0.30) : unit * 0.235;
   if (subtitle) {
-    const size = fitFontSize(ctx, subtitle, width * 0.62, unit * 0.052, 'italic 700', SCRIPT_FONT_STACK);
+    const size = fitFontSize(ctx, subtitle, width * 0.62, unit * 0.056, 'italic 700', SCRIPT_FONT_STACK);
     ctx.font = `italic 700 ${size}px ${SCRIPT_FONT_STACK}`;
     ctx.save();
-    ctx.translate(width / 2, height * 0.115);
+    ctx.translate(width / 2, title ? titleY - titleSize - unit * 0.018 : height * 0.115);
     ctx.rotate(-0.035);
     ctx.lineJoin = 'round';
     ctx.strokeStyle = 'rgba(18, 4, 31, 0.9)';
@@ -262,15 +302,14 @@ function paintLettering(ctx, state, width, height) {
     ctx.restore();
   }
   if (title) {
-    const size = fitFontSize(ctx, title, width * 0.90, unit * 0.155, '900', TITLE_FONT_STACK);
+    const size = titleSize;
     ctx.font = `900 ${size}px ${TITLE_FONT_STACK}`;
-    const titleY = height * (subtitle ? 0.235 : 0.185);
     ctx.lineJoin = 'round';
     ctx.strokeStyle = '#12041f';
-    ctx.lineWidth = size * 0.16;
+    ctx.lineWidth = size * 0.17;
     ctx.strokeText(title, width / 2, titleY);
     ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = size * 0.055;
+    ctx.lineWidth = size * 0.06;
     ctx.strokeText(title, width / 2, titleY);
     const fill = ctx.createLinearGradient(0, titleY - size, 0, titleY);
     fill.addColorStop(0, '#fff7ae');
@@ -278,8 +317,13 @@ function paintLettering(ctx, state, width, height) {
     fill.addColorStop(0.78, '#ff5e7a');
     fill.addColorStop(1, '#c218a8');
     ctx.fillStyle = fill;
+    ctx.save();
+    ctx.shadowColor = 'rgba(16, 2, 28, 0.6)';
+    ctx.shadowBlur = unit * 0.014;
+    ctx.shadowOffsetY = unit * 0.009;
     ctx.fillText(title, width / 2, titleY);
-    if (state.stars > 0) paintWantedStars(ctx, width / 2, titleY + unit * 0.052, state.stars, unit);
+    ctx.restore();
+    if (state.stars > 0) paintWantedStars(ctx, width / 2, titleY + unit * 0.055, state.stars, unit);
   }
   if (caption) {
     const barHeight = unit * 0.085;

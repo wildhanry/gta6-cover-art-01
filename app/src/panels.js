@@ -96,8 +96,48 @@ function fullBleedPanels() {
   return [makePanel('full', 'Full-bleed photo', [[0, 0], [1, 0], [1, 1], [0, 1]])];
 }
 
+/** The x position of the cover-star layout's leaning hero divider at height y. */
+function starDividerX(y) {
+  return 0.575 - 0.05 * y;
+}
+
+/**
+ * The poster-first layout: one tall hero panel takes the left three-fifths of the
+ * cover at every aspect ratio, a wide scene leans against its top right, and two
+ * smaller scenes split the bottom right corner. Four panels only, each large enough
+ * for a face to read at thumbnail size — the hierarchy a game cover leads with,
+ * instead of a grid of equal boxes competing for the eye.
+ */
+function coverStarPanels() {
+  const seamY = 0.545;
+  const splitTop = 0.80;
+  const splitBottom = 0.772;
+  return [
+    makePanel('star-hero', 'Hero panel', [[0, 0], [starDividerX(0) + 0.012, 0], [starDividerX(1) - 0.012, 1], [0, 1]]),
+    makePanel('star-top', 'Top scene', [
+      [starDividerX(0) + 0.012, 0],
+      [1, 0],
+      [1, seamY - 0.012],
+      [starDividerX(seamY) - 0.012, seamY - 0.012],
+    ]),
+    makePanel('star-low-left', 'Lower scene left', [
+      [starDividerX(seamY) + 0.012, seamY + 0.012],
+      [splitTop, seamY + 0.012],
+      [splitBottom, 1],
+      [starDividerX(1) - 0.012, 1],
+    ]),
+    makePanel('star-low-right', 'Lower scene right', [
+      [splitTop + 0.024, seamY + 0.012],
+      [1, seamY + 0.012],
+      [1, 1],
+      [splitBottom + 0.024, 1],
+    ]),
+  ];
+}
+
 /** Every layout the editor offers, in the order the picker shows them. */
 export const COVER_LAYOUTS = [
+  { id: 'cover-star', name: 'Cover Star', hint: 'One hero panel, three scenes leaning in', build: coverStarPanels },
   { id: 'hero-grid', name: 'Hero Grid', hint: 'One star panel, three supporting scenes', build: heroGridPanels },
   { id: 'nine-grid', name: 'Nine Grid', hint: 'The iconic nine-panel poster grid', build: nineGridPanels },
   { id: 'film-strip', name: 'Film Strip', hint: 'Four leaning vertical strips', build: filmStripPanels },

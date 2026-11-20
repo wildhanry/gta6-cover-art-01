@@ -15,17 +15,22 @@ fonts are used anywhere.
 
 ## Why it is different
 
-- **Real multi-panel covers** — six layouts (Hero Grid, Nine Grid, Film Strip,
-  Top Hero, Duo Split, Full Bleed) with the genre's slanted panel dividers, not a
-  single photo in a frame.
+- **Real multi-panel covers** — seven layouts (Cover Star, Hero Grid, Nine Grid,
+  Film Strip, Top Hero, Duo Split, Full Bleed) with the genre's slanted panel
+  dividers, not a single photo in a frame. Cover Star leads with one tall hero
+  panel and three scenes leaning in, the hierarchy of a real game cover.
 - **Any photo, framed your way** — one photo per panel or one photo spread across
   all of them; click a panel to select it, drag on the cover to reframe, scroll or
-  slide to zoom. Portrait and landscape photos both cover-fit cleanly.
+  slide to zoom. Portrait and landscape photos both cover-fit cleanly, and the
+  crop leans toward the upper third so faces survive a wide panel.
 - **A real colour grade** — five grades (Vice Sunset, Neon Nights, Golden Hour,
-  Poster Ink, Clean) applied per pixel with a gradient map, plus per-panel grade
+  Poster Ink, Clean) applied per pixel with a restrained gradient map that keeps
+  each photo's own colours, plus an edge-ink pass that darkens a photo's edges
+  toward deep ink so panels read as printed poster art. Per-panel grade
   overrides, an intensity slider, film grain and a vignette.
-- **Poster lettering** — a huge outlined title with a sunset gradient fill, a neon
-  script subtitle, a caption bar, wanted stars and a corner badge, all editable.
+- **Poster lettering** — a huge outlined title with a sunset gradient fill and a
+  drop shadow over a dusk scrim, a neon script subtitle stacked above it, a
+  caption bar, wanted stars and an optional corner badge, all editable.
 - **Private by design** — the app is static files only and makes no network
   request. Photos are read on your own machine and never uploaded anywhere.
 
@@ -57,8 +62,8 @@ output directory and writes `dossier.json` with `buildDossier` from
 ## Layout of this repository
 
 - `app/index.html`, `app/style.css` — the editor page and its styling
-- `app/src/panels.js` — the six cover layouts as leaning polygons
-- `app/src/grade.js` — the five colour grades (gradient map + washes)
+- `app/src/panels.js` — the seven cover layouts as leaning polygons
+- `app/src/grade.js` — the five colour grades (gradient map, edge ink + washes)
 - `app/src/render.js` — the cover renderer shared by preview and PNG export
 - `app/src/main.js` — editor wiring: uploads, drag reframing, export
 - `app/src/shots.js` — reproducible `?shot=` scenes used for the screenshots
